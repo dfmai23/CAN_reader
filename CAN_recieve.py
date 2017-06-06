@@ -9,7 +9,7 @@ from CAN_globals import CAN_map, msg, new_msg, UNKNOWN
 logs_path = os.getcwd() + '\\logs\\'
 
 class CAN_recieve(threading.Thread):
-    def __init__(self, srl):                         #constructor
+    def __init__(self, srl):                    #constructor
         super(CAN_recieve, self).__init__()     #self init
         self.alive = True
         self.srl = srl
@@ -21,35 +21,43 @@ class CAN_recieve(threading.Thread):
         global CAN_map
 
         size = 0
+        num = 0     #num of captured msgs
+        num_total = 0
 
         if not os.path.exists(logs_path):           #make logs folder
             os.makedirs(logs_path)
-        datetime = dt.now().strftime('(%Y-%m-%d)_%H.%M.%S')   
+        datetime = dt.now().strftime('(%Y-%m-%d)_%H.%M.%S')
         #log = open(logs_path+datetime+'.txt', 'w')
         log = 0
         #print(logs_path+datetime)
-    
+
+
         while self.alive:
             try:
-                #msg = srl.read(16) #acquire the wireless CAN message r
                 msg = self.srl.readline()        #'\n' delimiter
                 size = len(msg)
+                num_total += 1
 
+                #print(msg)
                 if size >= 16 and msg[size-2] == 255:   #0xFF0A delimiter
                     self.CAN_process(msg, size, log)
-                #if size >=16 and msg[size-2] == 255:
+                    num += 1
+                #if
                 else:   #get rest of message
-                    msg += self.srl.readline()  
+                    msg += self.srl.readline()
                     size = len(msg)
                     if size >= 16 and msg[size-2] == 255:   #0xFF0A delimiter
                         self.CAN_process(msg, size, log)
+                        num += 1
                 #else
             #try
             except KeyboardInterrupt:
                 self.alive = False                 #close this thread
             #except
         #while
-        #file.close() 
+        print(num_total)
+        print(num)
+        file.close()
     #run(self)
 
     def CAN_process(self, msg, size, log):
@@ -70,7 +78,7 @@ class CAN_recieve(threading.Thread):
         msg[size-10], msg[size-9], msg[size-8], msg[size-7], msg[size-6], msg[size-5], msg[size-4], msg[size-3],
         timestamp // 1000, timestamp % 1000))
         #print(new_msg)
-       
+
         CAN_ID = ('%1X%02X' % (msg[size-16], msg[size-15]))
         CAN_msg = CAN_map.get(CAN_ID)
         if CAN_msg != None:
@@ -79,7 +87,7 @@ class CAN_recieve(threading.Thread):
             UNKNOWN.set(new_msg)
 
         #log to file
-        #log.write('%s,%u,%X,%X,%X,%X,%X,%X,%X,%X\n' % 
+        #log.write('%s,%u,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X\n' %
         #(CAN_ID, timestamp, msg[size-10], msg[size-9], msg[size-8], msg[size-7], msg[size-6], msg[size-5], msg[size-4], msg[size-3]))
     #CAN_process()
 #end class

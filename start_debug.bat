@@ -1,0 +1,1 @@
+cmd /k python CAN_reader.py

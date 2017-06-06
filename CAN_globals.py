@@ -35,7 +35,7 @@ CAN_map = { '123': LOGGER_TIME,
 
 #is a byte array but each element is an int
 #msg is temp var to hold received messages
-#new_msg replace the test_msgs
+#new_msg is string formatted msg
 #test_msg used to initialized can messages
 msg = bytearray()
 new_msg = bytearray([0x09,0x99,

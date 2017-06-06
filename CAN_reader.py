@@ -5,9 +5,9 @@ Dustin Mai
 Program to monitor the CAN bus wirelessly
 Requires PySerial and Tkinter libraries
 
-To add a new CAN message:					     				###search###
-    - create the StringVar()				        			#ADD1#
-    - add ID and StringVar() to map				        #ADD2#
+To add a new CAN message:					     ###search###
+    - create the StringVar()				       	#ADD1#
+    - add ID and StringVar() to map				    #ADD2#
     - create CAN Decription, Message ID & DATA		#ADD3#
     - set() the StringVar() at the end		        #ADD4#
 
@@ -22,7 +22,7 @@ from time import sleep                  #for after()
 
 COL0_W  = '22'
 COL1_W  = '50'
-srl = serial.Serial('COM4', 9600, timeout=None) #timeout=none, wiat until requested num of bytes are recieved
+srl = serial.Serial(port='COM8', baudrate=9600, timeout=None) #timeout=none, wiat until requested num of bytes are recieved
 
 
 frame = Tk()                #main window frame
@@ -32,7 +32,7 @@ f = 'Consolas 10'           #font type and size
 
 from CAN_globals import *		#has to be after root window is created
 from CAN_recieve import CAN_recieve
-
+from data_process import *
 
 #anchor west, relief = solid oultine
 Label(frame, text='CAN Bus Monitor',  font=f+' bold', anchor='w', width=COL0_W, relief='solid').grid(row=1, column=0)
@@ -92,13 +92,15 @@ can14.grid(row=99, column=1)
 
 can_reader = CAN_recieve(srl)
 can_reader.daemon = True        #let gui run in background of main process
+
 def CAN_update():
-    can_reader.start()
+  can_reader.start()
 #end fn
 
 def sysexit():
-    sys.exit()
+  sys.exit()
 #end fn
+
 
 
 #ADD4#
@@ -117,7 +119,8 @@ BMS_VOLTAGE.set(test_msg)
 BMS_TEMP.set(test_msg)
 
 Label(frame, text='', width=COL0_W).grid(row=100, column=0)		#row=100 end of rows
-Button(frame, text="Exit", command=lambda: sysexit(), width='8', relief='raised').grid(row=101)
+Button(frame, text="Exit", command=lambda: sysexit(), width='8', relief='raised').grid(row=101, column=0)
+Button(frame, text="Process file", command=lambda: data_process(), width='8', relief='raised').grid(row=101, column=1)
 
 try:
 	frame.after(100, CAN_update)
